@@ -20,11 +20,13 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%
 
 
 
-SET outputDirectory=C:\Tools\Workshop\
 REM %~n1\
 SET inputFolderPath=%~1
 SET inputFolderDrive=%~d1
+
+REM ##################### CHANGE THIS #############################################################
 SET transferredFolderPath=M:\DVDs\
+REM ###############################################################################################
 
 FOR /F "tokens=1-5*" %%1 IN ('VOL %inputFolderDrive%') DO (
                 SET driveLabelTemp=%%6 & goto finishDriveLabelling
@@ -37,8 +39,11 @@ IF EXIST "!transferredFolderPath!!driveLabel!" (
 )
 SET "driveLabel=%driveLabel%%driveLabelSuffix%"
 
+REM ##################### CHANGE THESE ############################################################
+SET outputDirectory=C:\Tools\Workshop\
 SET screensDirectory=%localdatetime%-%driveLabel%\screens\
 SET infoDirectory=%localdatetime%-%driveLabel%\info\
+REM ###############################################################################################
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
 MKDIR "!outputDirectory!%screensDirectory%" 2> NUL
@@ -78,18 +83,29 @@ DEL %screensDirectory%*.png >NUL 2>&1 & REM Deletes the PNGs already present in 
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots Of Menu %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-REM Finds duration of file in seconds
-ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" -map 0:v:0 -c copy -f null - > temp.txt 2>&1
 
-REM Extracts the last 2 lines of the ffmpeg output
+
+ REM Finds duration of file in seconds
+ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+
+REM Extracts the 13th last line of the ffmpeg output for the frame count
 FOR /F "delims=" %%a in (temp.txt) do (
+    SET "lastBut12=!lastBut11!"
+    SET "lastBut11=!lastBut10!"
+    SET "lastBut10=!lastBut9!"
+    SET "lastBut9=!lastBut8!"
+    SET "lastBut8=!lastBut7!"
+    SET "lastBut7=!lastBut6!"
+    SET "lastBut6=!lastBut5!"
+    SET "lastBut5=!lastBut4!"
+    SET "lastBut4=!lastBut3!"
+    SET "lastBut3=!lastBut2!"
+    SET "lastBut2=!lastBut1!"
     SET "lastBut1=!lastLine!"
     SET "lastLine=%%a"
-)
-FOR /F "tokens=2 delims==" %%b in ("!lastBut1!") do (
-    FOR /F "tokens=1 delims= " %%c in ("%%b") do (
-        SET "frameCount=%%c"
     )
+FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
+    SET "frameCount=%%b"
 )
 
 SET /A interval= !frameCount! / 3 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
