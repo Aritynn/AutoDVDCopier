@@ -18,8 +18,6 @@ REM Drag VIDEO_TS folder from DVD onto batch file and follow the instructions
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 REM %~n1\
 SET inputFolderPath=%~1
 SET inputFolderDrive=%~d1
@@ -29,8 +27,8 @@ SET transferredFolderPath=M:\DVDs\
 REM ###############################################################################################
 
 FOR /F "tokens=1-5*" %%1 IN ('VOL %inputFolderDrive%') DO (
-                SET driveLabelTemp=%%6 & goto finishDriveLabelling
-           )
+    SET driveLabelTemp=%%6 & goto finishDriveLabelling
+)
 :finishDriveLabelling
 SET driveLabel=!driveLabelTemp:~0,-1!
 
@@ -112,8 +110,6 @@ IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
 DEL %screensDirectory%*.png >NUL 2>&1 & REM Deletes the PNGs already present in the directory
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots Of Menu %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
  REM Finds duration of file in seconds
 ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
