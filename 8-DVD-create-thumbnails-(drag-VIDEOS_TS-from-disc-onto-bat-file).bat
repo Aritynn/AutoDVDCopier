@@ -71,23 +71,23 @@ ECHO Finished extracting IFO mediainfo
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Check for files %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
-    SET "EpisodeFound=1"
+    SET EpisodeFound=1
     ECHO Continuing - Episode was found
 ) ELSE (
     IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_1.VOB" (
-        SET "EpisodeFound=2"
+        SET EpisodeFound=2
         ECHO Continuing - Episode was found
     ) ELSE (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_1.VOB" (
-            SET "EpisodeFound=3"
+            SET EpisodeFound=3
             ECHO Continuing - Episode was found
         ) ELSE (
             IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_1.VOB" (
-                SET "EpisodeFound=4"
+                SET EpisodeFound=4
                 ECHO Continuing - Episode was found
             ) ELSE (
-                SET "EpisodeFound=0"
-                ECHO Cancelling - Episode was not found
+                SET EpisodeFound=0
+                ECHO Episode was not found
                 PAUSE
             )
         )
@@ -95,23 +95,23 @@ IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
 )
 
 IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
-    SET "MenuFound=1"
+    SET MenuFound=1
     ECHO Continuing - Menu was found
 ) ELSE (
     IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_0.VOB" (
-        SET "MenuFound=2"
+        SET MenuFound=2
         ECHO Continuing - Menu was found
     ) ELSE (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_0.VOB" (
-            SET "MenuFound=3"
+            SET MenuFound=3
             ECHO Continuing - Menu was found
         ) ELSE (
             IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_0.VOB" (
-                SET "MenuFound=4"
+                SET MenuFound=4
                 ECHO Continuing - Menu was found
             ) ELSE (
-                SET "MenuFound=0"
-                ECHO Cancelling - Menu was not found
+                SET MenuFound=0
+                ECHO Menu was not found
                 PAUSE
             )
         )
@@ -122,85 +122,93 @@ DEL %screensDirectory%*.png >NUL 2>&1 & REM Deletes the PNGs already present in 
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots Of Menu %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- REM Finds duration of file in seconds
-ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+IF %MenuFound% GEQ 0 (
+    REM Finds duration of file in seconds
+    ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
-REM Extracts the 13th last line of the ffmpeg output for the frame count
-FOR /F "delims=" %%a in (temp.txt) do (
-    SET "lastBut12=!lastBut11!"
-    SET "lastBut11=!lastBut10!"
-    SET "lastBut10=!lastBut9!"
-    SET "lastBut9=!lastBut8!"
-    SET "lastBut8=!lastBut7!"
-    SET "lastBut7=!lastBut6!"
-    SET "lastBut6=!lastBut5!"
-    SET "lastBut5=!lastBut4!"
-    SET "lastBut4=!lastBut3!"
-    SET "lastBut3=!lastBut2!"
-    SET "lastBut2=!lastBut1!"
-    SET "lastBut1=!lastLine!"
-    SET "lastLine=%%a"
+    REM Extracts the 13th last line of the ffmpeg output for the frame count
+    FOR /F "delims=" %%a in (temp.txt) do (
+        SET "lastBut12=!lastBut11!"
+        SET "lastBut11=!lastBut10!"
+        SET "lastBut10=!lastBut9!"
+        SET "lastBut9=!lastBut8!"
+        SET "lastBut8=!lastBut7!"
+        SET "lastBut7=!lastBut6!"
+        SET "lastBut6=!lastBut5!"
+        SET "lastBut5=!lastBut4!"
+        SET "lastBut4=!lastBut3!"
+        SET "lastBut3=!lastBut2!"
+        SET "lastBut2=!lastBut1!"
+        SET "lastBut1=!lastLine!"
+        SET "lastLine=%%a"
     )
-FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
-    SET "frameCount=%%b"
+    FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
+        SET "frameCount=%%b"
+    )
+
+    SET /A interval= !frameCount! / 3 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+
+    REM Extracts screen at each interval and names the file as the frame number
+    ffmpeg.exe -analyzeduration 2147483647^
+     -probesize 2147483647^
+     -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB"^
+     -loglevel error^
+     -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
+     -vsync 0^
+     -stats^
+     -f image2^
+     -start_number 0^
+     -frame_pts 1^
+     "%outputDirectory%%screensDirectory%a_menu-%%d-%driveLabel%.png"
+) ELSE (
+    ECHO No menu screenshots were created (no menu was found)
 )
-
-SET /A interval= !frameCount! / 3 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
-
-REM Extracts screen at each interval and names the file as the frame number
-ffmpeg.exe -analyzeduration 2147483647^
- -probesize 2147483647^
- -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB"^
- -loglevel error^
- -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
- -vsync 0^
- -stats^
- -f image2^
- -start_number 0^
- -frame_pts 1^
- "%outputDirectory%%screensDirectory%a_menu-%%d-%driveLabel%.png"
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- REM Finds duration of file in seconds
-ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+IF %EpisodeFound% GEQ 0 (
+    REM Finds duration of file in seconds
+    ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
-REM Extracts the 13th last line of the ffmpeg output for the frame count
-FOR /F "delims=" %%a in (temp.txt) do (
-    SET "lastBut12=!lastBut11!"
-    SET "lastBut11=!lastBut10!"
-    SET "lastBut10=!lastBut9!"
-    SET "lastBut9=!lastBut8!"
-    SET "lastBut8=!lastBut7!"
-    SET "lastBut7=!lastBut6!"
-    SET "lastBut6=!lastBut5!"
-    SET "lastBut5=!lastBut4!"
-    SET "lastBut4=!lastBut3!"
-    SET "lastBut3=!lastBut2!"
-    SET "lastBut2=!lastBut1!"
-    SET "lastBut1=!lastLine!"
-    SET "lastLine=%%a"
+    REM Extracts the 13th last line of the ffmpeg output for the frame count
+    FOR /F "delims=" %%a in (temp.txt) do (
+        SET "lastBut12=!lastBut11!"
+        SET "lastBut11=!lastBut10!"
+        SET "lastBut10=!lastBut9!"
+        SET "lastBut9=!lastBut8!"
+        SET "lastBut8=!lastBut7!"
+        SET "lastBut7=!lastBut6!"
+        SET "lastBut6=!lastBut5!"
+        SET "lastBut5=!lastBut4!"
+        SET "lastBut4=!lastBut3!"
+        SET "lastBut3=!lastBut2!"
+        SET "lastBut2=!lastBut1!"
+        SET "lastBut1=!lastLine!"
+        SET "lastLine=%%a"
     )
-FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
-    SET "frameCount=%%b"
+    FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
+        SET "frameCount=%%b"
+    )
+
+    SET /A interval= !frameCount! / 11 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+
+    REM Extracts screen at each interval and names the file as the frame number
+    ffmpeg.exe -analyzeduration 2147483647^
+     -probesize 2147483647^
+     -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB"^
+     -loglevel error^
+     -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
+     -vsync 0^
+     -stats^
+     -f image2^
+     -start_number 0^
+     -frame_pts 1^
+     "%outputDirectory%%screensDirectory%b_episode-%%d-%driveLabel%.png"
+
+    DEL "%outputDirectory%%screensDirectory%*-0-*.png" >NUL 2>&1
+) ELSE (
+    ECHO No episode screenshots were created (no episode was found)
 )
-
-SET /A interval= !frameCount! / 11 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
-
-REM Extracts screen at each interval and names the file as the frame number
-ffmpeg.exe -analyzeduration 2147483647^
- -probesize 2147483647^
- -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB"^
- -loglevel error^
- -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
- -vsync 0^
- -stats^
- -f image2^
- -start_number 0^
- -frame_pts 1^
- "%outputDirectory%%screensDirectory%b_episode-%%d-%driveLabel%.png"
-
-DEL "%outputDirectory%%screensDirectory%*-0-*.png" >NUL 2>&1
 
 ECHO Finished generating screenshots
 
