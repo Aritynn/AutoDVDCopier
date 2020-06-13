@@ -62,21 +62,51 @@ ECHO Finished transferring disc data to output location...
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Check for files %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
-    SET "EpisodeFound=true"
+    SET "EpisodeFound=1"
     ECHO Continuing - Episode was found
 ) ELSE (
-    SET "EpisodeFound=false"
-    ECHO Cancelling - Episode was not found
-    PAUSE
+    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_1.VOB" (
+        SET "EpisodeFound=2"
+        ECHO Continuing - Episode was found
+    ) ELSE (
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_1.VOB" (
+            SET "EpisodeFound=3"
+            ECHO Continuing - Episode was found
+        ) ELSE (
+            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_1.VOB" (
+                SET "EpisodeFound=4"
+                ECHO Continuing - Episode was found
+            ) ELSE (
+                SET "EpisodeFound=0"
+                ECHO Cancelling - Episode was not found
+                PAUSE
+            )
+        )
+    )
 )
 
 IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
-    SET "MenuFound=true"
+    SET "MenuFound=1"
     ECHO Continuing - Menu was found
 ) ELSE (
-    SET "MenuFound=false"
-    ECHO Cancelling - Menu was not found
-    PAUSE
+    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_0.VOB" (
+        SET "MenuFound=2"
+        ECHO Continuing - Menu was found
+    ) ELSE (
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_0.VOB" (
+            SET "MenuFound=3"
+            ECHO Continuing - Menu was found
+        ) ELSE (
+            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_0.VOB" (
+                SET "MenuFound=4"
+                ECHO Continuing - Menu was found
+            ) ELSE (
+                SET "MenuFound=0"
+                ECHO Cancelling - Menu was not found
+                PAUSE
+            )
+        )
+    )
 )
 
 DEL %screensDirectory%*.png >NUL 2>&1 & REM Deletes the PNGs already present in the directory
@@ -86,7 +116,7 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screensho
 
 
  REM Finds duration of file in seconds
-ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
 REM Extracts the 13th last line of the ffmpeg output for the frame count
 FOR /F "delims=" %%a in (temp.txt) do (
@@ -113,7 +143,7 @@ SET /A interval= !frameCount! / 3 & REM Divides the framecount by N to have an i
 REM Extracts screen at each interval and names the file as the frame number
 ffmpeg.exe -analyzeduration 2147483647^
  -probesize 2147483647^
- -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB"^
+ -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB"^
  -loglevel error^
  -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
  -vsync 0^
@@ -126,7 +156,7 @@ ffmpeg.exe -analyzeduration 2147483647^
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
  REM Finds duration of file in seconds
-ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
 REM Extracts the 13th last line of the ffmpeg output for the frame count
 FOR /F "delims=" %%a in (temp.txt) do (
@@ -153,7 +183,7 @@ SET /A interval= !frameCount! / 11 & REM Divides the framecount by N to have an 
 REM Extracts screen at each interval and names the file as the frame number
 ffmpeg.exe -analyzeduration 2147483647^
  -probesize 2147483647^
- -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB"^
+ -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB"^
  -loglevel error^
  -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
  -vsync 0^
@@ -170,7 +200,7 @@ ECHO Finished generating screenshots
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ECHO [SPOILER]>"%outputDirectory%%infoDirectory%VOB-description.txt"
-mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
+mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
 ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
 
 ECHO Finished extracting VOB mediainfo
