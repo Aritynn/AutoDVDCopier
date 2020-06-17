@@ -42,6 +42,8 @@ SET outputDirectory=C:\Tools\Workshop\
 SET screensDirectory=%localdatetime%-%driveLabel%\screens\
 SET infoDirectory=%localdatetime%-%driveLabel%\info\
 SET enableScreenshots=true
+SET enableIFOMediaInfo=true
+SET enableVOBMediaInfo=true
 SET amountOfMenuFrames=3
 SET amountOfEpisodeFrames=11
 REM ###############################################################################################
@@ -64,64 +66,83 @@ ECHO Finished transferring disc data to output location...
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get IFO Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-FOR /F "tokens=*" %%a IN ('DIR /B /S /O:S "%transferredFolderPath%%driveLabel%\VIDEO_TS\"') DO (
-    IF "%%~xa" == ".IFO" (
-        SET "ifoFile=%%a"
+IF %enableIFOMediaInfo%==true (
+    FOR /F "tokens=*" %%a IN ('DIR /B /S /O:S "%transferredFolderPath%%driveLabel%\VIDEO_TS\"') DO (
+        IF "%%~xa" == ".IFO" (
+            SET "ifoFile=%%a"
+        )
     )
-)
-mediainfo.exe "!ifoFile!">"%outputDirectory%%infoDirectory%IFO-mediainfo.txt"
+    mediainfo.exe "!ifoFile!">"%outputDirectory%%infoDirectory%IFO-mediainfo.txt"
 
-ECHO Finished extracting IFO mediainfo
+    ECHO Finished extracting IFO mediainfo
+) ELSE (
+    ECHO No IFO MediaInfo was generated - IFO MediaInfo is not enabled
+)
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Check for files %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
-    SET EpisodeFound=1
-    ECHO Continuing - Episode was found
-) ELSE (
-    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_1.VOB" (
-        SET EpisodeFound=2
-        ECHO Continuing - Episode was found
-    ) ELSE (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_1.VOB" (
-            SET EpisodeFound=3
-            ECHO Continuing - Episode was found
-        ) ELSE (
-            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_1.VOB" (
-                SET EpisodeFound=4
-                ECHO Continuing - Episode was found
-            ) ELSE (
-                SET EpisodeFound=0
-                ECHO Episode was not found
-                PAUSE
-            )
-        )
-    )
+SET checkForVOBFiles=false
+IF %enableScreenshots%==true (
+    SET checkForVOBFiles=true
 )
 
-IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
-    SET MenuFound=1
-    ECHO Continuing - Menu was found
-) ELSE (
-    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_0.VOB" (
-        SET MenuFound=2
-        ECHO Continuing - Menu was found
+IF %enableVOBMediaInfo%==true (
+    SET checkForVOBFiles=true
+)
+
+IF !checkForVOBFiles!==true (
+    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
+        SET EpisodeFound=1
+        ECHO Continuing - Episode was found
     ) ELSE (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_0.VOB" (
-            SET MenuFound=3
-            ECHO Continuing - Menu was found
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_1.VOB" (
+            SET EpisodeFound=2
+            ECHO Continuing - Episode was found
         ) ELSE (
-            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_0.VOB" (
-                SET MenuFound=4
-                ECHO Continuing - Menu was found
+            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_1.VOB" (
+                SET EpisodeFound=3
+                ECHO Continuing - Episode was found
             ) ELSE (
-                SET MenuFound=0
-                ECHO Menu was not found
-                PAUSE
+                IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_1.VOB" (
+                    SET EpisodeFound=4
+                    ECHO Continuing - Episode was found
+                ) ELSE (
+                    SET EpisodeFound=0
+                    ECHO Episode was not found
+                    PAUSE
+                )
             )
         )
     )
+
+    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
+        SET MenuFound=1
+        ECHO Continuing - Menu was found
+    ) ELSE (
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_0.VOB" (
+            SET MenuFound=2
+            ECHO Continuing - Menu was found
+        ) ELSE (
+            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_0.VOB" (
+                SET MenuFound=3
+                ECHO Continuing - Menu was found
+            ) ELSE (
+                IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_0.VOB" (
+                    SET MenuFound=4
+                    ECHO Continuing - Menu was found
+                ) ELSE (
+                    SET MenuFound=0
+                    ECHO Menu was not found
+                    PAUSE
+                )
+            )
+        )
+    )
+) ELSE (
+    ECHO Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
 )
+
+REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generate Screenshots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF %enableScreenshots%==true (
     DEL %screensDirectory%*.png >NUL 2>&1 & REM Deletes the PNGs already present in the directory
@@ -224,11 +245,15 @@ IF %enableScreenshots%==true (
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ECHO [SPOILER]>"%outputDirectory%%infoDirectory%VOB-description.txt"
-mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
-ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
+IF %enableVOBMediaInfo%==true (
+    ECHO [SPOILER]>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
 
-ECHO Finished extracting VOB mediainfo
+    ECHO Finished extracting VOB mediainfo
+) ELSE (
+    No VOB MediaInfo was generated - VOB MediaInfo is not enabled
+)
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Done %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
