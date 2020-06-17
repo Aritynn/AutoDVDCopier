@@ -161,7 +161,7 @@ IF %MenuFound% GEQ 0 (
      -frame_pts 1^
      "%outputDirectory%%screensDirectory%a_menu-%%d-%driveLabel%.png"
 ) ELSE (
-    ECHO No menu screenshots were created (no menu was found)
+    ECHO No menu screenshots were created - No menu was found
 )
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -207,7 +207,7 @@ IF %EpisodeFound% GEQ 0 (
 
     DEL "%outputDirectory%%screensDirectory%*-0-*.png" >NUL 2>&1
 ) ELSE (
-    ECHO No episode screenshots were created (no episode was found)
+    ECHO No episode screenshots were created - No episode was found
 )
 
 ECHO Finished generating screenshots
