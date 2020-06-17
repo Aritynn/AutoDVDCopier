@@ -41,6 +41,8 @@ REM ##################### CHANGE THESE #########################################
 SET outputDirectory=C:\Tools\Workshop\
 SET screensDirectory=%localdatetime%-%driveLabel%\screens\
 SET infoDirectory=%localdatetime%-%driveLabel%\info\
+SET amountOfMenuFrames=3
+SET amountOfEpisodeFrames=11
 REM ###############################################################################################
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
@@ -146,7 +148,7 @@ IF %MenuFound% GEQ 0 (
         SET "frameCount=%%b"
     )
 
-    SET /A interval= !frameCount! / 3 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+    SET /A interval= !frameCount! / %amountOfMenuFrames% & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
     REM Extracts screen at each interval and names the file as the frame number
     ffmpeg.exe -analyzeduration 2147483647^
@@ -190,7 +192,7 @@ IF %EpisodeFound% GEQ 0 (
         SET "frameCount=%%b"
     )
 
-    SET /A interval= !frameCount! / 11 & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+    SET /A interval= !frameCount! / %amountOfEpisodeFrames% & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
     REM Extracts screen at each interval and names the file as the frame number
     ffmpeg.exe -analyzeduration 2147483647^
