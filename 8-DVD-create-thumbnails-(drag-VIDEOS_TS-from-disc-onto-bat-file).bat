@@ -91,56 +91,38 @@ IF %enableVOBMediaInfo%==true (
 )
 
 IF !checkForVOBFiles!==true (
-    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_1.VOB" (
-        SET EpisodeFound=1
-        ECHO Continuing - Episode was found
-    ) ELSE (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_1.VOB" (
-            SET EpisodeFound=2
+    SET EpisodeFound=0
+    FOR /L %%a IN (1, 1, 4) DO (
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
+            SET EpisodeFound=%%a
             ECHO Continuing - Episode was found
-        ) ELSE (
-            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_1.VOB" (
-                SET EpisodeFound=3
-                ECHO Continuing - Episode was found
-            ) ELSE (
-                IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_1.VOB" (
-                    SET EpisodeFound=4
-                    ECHO Continuing - Episode was found
-                ) ELSE (
-                    SET EpisodeFound=0
-                    ECHO Episode was not found
-                    PAUSE
-                )
-            )
+            goto :breakEpisodeFinder
         )
+    )
+    :breakEpisodeFinder
+    IF !EpisodeFound!==0 (
+        ECHO Episode was not found
+        PAUSE
     )
 
-    IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_01_0.VOB" (
-        SET MenuFound=1
-        ECHO Continuing - Menu was found
-    ) ELSE (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_02_0.VOB" (
-            SET MenuFound=2
+    SET MenuFound=0
+    FOR /L %%a IN (1, 1, 4) DO (
+        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
+            SET MenuFound=%%a
             ECHO Continuing - Menu was found
-        ) ELSE (
-            IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_03_0.VOB" (
-                SET MenuFound=3
-                ECHO Continuing - Menu was found
-            ) ELSE (
-                IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_04_0.VOB" (
-                    SET MenuFound=4
-                    ECHO Continuing - Menu was found
-                ) ELSE (
-                    SET MenuFound=0
-                    ECHO Menu was not found
-                    PAUSE
-                )
-            )
+            goto :breakMenuFinder
         )
     )
-) ELSE (
-    ECHO Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
+    :breakMenuFinder
+    IF !MenuFound!==0 (
+        ECHO Menu was not found
+        PAUSE
+    )
 )
+
+IF NOT !checkForVOBFiles!==true {
+    ECHO Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
+}
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generate Screenshots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
