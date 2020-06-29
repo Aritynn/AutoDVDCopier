@@ -56,13 +56,17 @@ CD /D "!outputDirectory!"
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Copy from disc to drive %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ECHO Transferring disc data to output location...
+FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+ECHO !currentTime! - Transferring disc data to output location...
 
 mkdir "%transferredFolderPath%%driveLabel%" 2> NUL
 teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%%driveLabel%"
 nircmd.exe cdrom open %inputFolderDrive%
 
-ECHO Finished transferring disc data to output location...
+FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+ECHO !currentTime! - Finished transferring disc data to output location...
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get IFO Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -74,7 +78,9 @@ IF %enableIFOMediaInfo%==true (
     )
     mediainfo.exe "!ifoFile!">"%outputDirectory%%infoDirectory%IFO-mediainfo.txt"
 
-    ECHO Finished extracting IFO mediainfo
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - Finished extracting IFO mediainfo
 ) ELSE (
     ECHO No IFO MediaInfo was generated - IFO MediaInfo is not enabled
 )
@@ -95,13 +101,18 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 4) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
             SET EpisodeFound=%%a
-            ECHO Continuing - Episode was found
+
+            FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+            SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+            ECHO !currentTime! - Continuing - Episode was found
             goto :breakEpisodeFinder
         )
     )
     :breakEpisodeFinder
     IF !EpisodeFound!==0 (
-        ECHO Episode was not found
+        FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+        SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+        ECHO !currentTime! - Episode was not found
         PAUSE
     )
 
@@ -109,19 +120,26 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 4) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
             SET MenuFound=%%a
-            ECHO Continuing - Menu was found
+
+            FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+            SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+            ECHO !currentTime! - Continuing - Menu was found
             goto :breakMenuFinder
         )
     )
     :breakMenuFinder
     IF !MenuFound!==0 (
-        ECHO Menu was not found
+        FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+        SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+        ECHO !currentTime! - Menu was not found
         PAUSE
     )
 )
 
 IF NOT !checkForVOBFiles!==true (
-    ECHO Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
 )
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generate Screenshots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -170,7 +188,9 @@ IF %enableScreenshots%==true (
          -frame_pts 1^
          "%outputDirectory%%screensDirectory%a_menu-%%d-%driveLabel%.png"
     ) ELSE (
-        ECHO No menu screenshots were created - No menu was found
+        FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+        SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+        ECHO !currentTime! - No menu screenshots were created - No menu was found
     )
 
     REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,13 +236,18 @@ IF %enableScreenshots%==true (
 
         DEL "%outputDirectory%%screensDirectory%*-0-*.png" >NUL 2>&1
     ) ELSE (
-        ECHO No episode screenshots were created - No episode was found
+        FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+        SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+        ECHO !currentTime! - No episode screenshots were created - No episode was found
     )
-
-    ECHO Finished generating screenshots
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - Finished generating screenshots
 
 ) ELSE (
-    ECHO No screenshots were generated - Screenshots are not enabled
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - No screenshots were generated - Screenshots are not enabled
 )
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,13 +257,19 @@ IF %enableVOBMediaInfo%==true (
     mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
 
-    ECHO Finished extracting VOB mediainfo
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - Finished extracting VOB mediainfo
 ) ELSE (
-    No VOB MediaInfo was generated - VOB MediaInfo is not enabled
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+    ECHO !currentTime! - No VOB MediaInfo was generated - VOB MediaInfo is not enabled
 )
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Done %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ECHO Done
+FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+SET currentTime=%ldt:~0,4%-%ldt:~4,2%-%ldt:~6,2%-%ldt:~8,2%h%ldt:~10,2%m%ldt:~12,2%s
+ECHO !currentTime! - Done
 
 pause
