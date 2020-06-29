@@ -120,9 +120,9 @@ IF !checkForVOBFiles!==true (
     )
 )
 
-IF NOT !checkForVOBFiles!==true {
+IF NOT !checkForVOBFiles!==true (
     ECHO Episode and Menu were not searched for - Screenshots and VOB MediaInfo are not enabled
-}
+)
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generate Screenshots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
