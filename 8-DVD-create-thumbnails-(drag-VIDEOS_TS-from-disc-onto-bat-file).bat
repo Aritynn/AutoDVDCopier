@@ -155,7 +155,7 @@ IF %enableScreenshots%==true (
             SET "frameCount=%%b"
         )
 
-        SET /A interval= !frameCount! / %amountOfMenuFrames% & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+        SET /A interval= !frameCount! / %amountOfMenuFrames% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
@@ -199,7 +199,7 @@ IF %enableScreenshots%==true (
             SET "frameCount=%%b"
         )
 
-        SET /A interval= !frameCount! / %amountOfEpisodeFrames% & REM Divides the framecount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+        SET /A interval= !frameCount! / %amountOfEpisodeFrames% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
