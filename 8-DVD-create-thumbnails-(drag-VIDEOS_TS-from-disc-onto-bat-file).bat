@@ -44,8 +44,10 @@ SET infoDirectory=%localdatetime%-%driveLabel%\info\
 SET enableScreenshots=true
 SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
-SET amountOfMenuFrames=3
-SET amountOfEpisodeFrames=11
+SET amountOfMenuScreens=3
+SET amountOfEpisodeScreens=11
+SET minAmountOfMenuFrames=100
+SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
@@ -100,12 +102,38 @@ IF !checkForVOBFiles!==true (
     SET EpisodeFound=0
     FOR /L %%a IN (1, 1, 4) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
-            SET EpisodeFound=%%a
+            REM Finds duration of file in frames
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
-            FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
-            SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-            ECHO !currentTime! - Continuing - Episode was found
-            goto :breakEpisodeFinder
+            REM Extracts the 13th last line of the ffmpeg output for the frame count
+            FOR /F "delims=" %%b in (temp.txt) do (
+                SET "lastBut12=!lastBut11!"
+                SET "lastBut11=!lastBut10!"
+                SET "lastBut10=!lastBut9!"
+                SET "lastBut9=!lastBut8!"
+                SET "lastBut8=!lastBut7!"
+                SET "lastBut7=!lastBut6!"
+                SET "lastBut6=!lastBut5!"
+                SET "lastBut5=!lastBut4!"
+                SET "lastBut4=!lastBut3!"
+                SET "lastBut3=!lastBut2!"
+                SET "lastBut2=!lastBut1!"
+                SET "lastBut1=!lastLine!"
+                SET "lastLine=%%b"
+            )
+            FOR /F "tokens=2 delims==" %%c in ("!lastBut12!") do (
+                SET "episodeFrameCount=%%c"
+            )
+
+            IF !episodeFrameCount! GEQ %minAmountOfEpisodeFrames% (
+                SET EpisodeFound=%%a
+
+                FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+                SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
+                ECHO !currentTime! - Continuing - Episode was found
+
+                goto :breakEpisodeFinder
+            )
         )
     )
     :breakEpisodeFinder
@@ -119,12 +147,38 @@ IF !checkForVOBFiles!==true (
     SET MenuFound=0
     FOR /L %%a IN (1, 1, 4) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
-            SET MenuFound=%%a
+            REM Finds duration of file in frames
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
 
-            FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
-            SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-            ECHO !currentTime! - Continuing - Menu was found
-            goto :breakMenuFinder
+            REM Extracts the 13th last line of the ffmpeg output for the frame count
+            FOR /F "delims=" %%b in (temp.txt) do (
+                SET "lastBut12=!lastBut11!"
+                SET "lastBut11=!lastBut10!"
+                SET "lastBut10=!lastBut9!"
+                SET "lastBut9=!lastBut8!"
+                SET "lastBut8=!lastBut7!"
+                SET "lastBut7=!lastBut6!"
+                SET "lastBut6=!lastBut5!"
+                SET "lastBut5=!lastBut4!"
+                SET "lastBut4=!lastBut3!"
+                SET "lastBut3=!lastBut2!"
+                SET "lastBut2=!lastBut1!"
+                SET "lastBut1=!lastLine!"
+                SET "lastLine=%%b"
+            )
+            FOR /F "tokens=2 delims==" %%c in ("!lastBut12!") do (
+                SET "menuFrameCount=%%c"
+            )
+
+            IF !menuFrameCount! GEQ %minAmountOfMenuFrames% (
+                SET MenuFound=%%a
+
+                FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+                SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
+                ECHO !currentTime! - Continuing - Menu was found
+
+                goto :breakMenuFinder
+            )
         )
     )
     :breakMenuFinder
@@ -154,30 +208,7 @@ IF %enableScreenshots%==true (
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating menu screenshots...
 
-        REM Finds duration of file in seconds
-        ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
-
-        REM Extracts the 13th last line of the ffmpeg output for the frame count
-        FOR /F "delims=" %%a in (temp.txt) do (
-            SET "lastBut12=!lastBut11!"
-            SET "lastBut11=!lastBut10!"
-            SET "lastBut10=!lastBut9!"
-            SET "lastBut9=!lastBut8!"
-            SET "lastBut8=!lastBut7!"
-            SET "lastBut7=!lastBut6!"
-            SET "lastBut6=!lastBut5!"
-            SET "lastBut5=!lastBut4!"
-            SET "lastBut4=!lastBut3!"
-            SET "lastBut3=!lastBut2!"
-            SET "lastBut2=!lastBut1!"
-            SET "lastBut1=!lastLine!"
-            SET "lastLine=%%a"
-        )
-        FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
-            SET "frameCount=%%b"
-        )
-
-        SET /A interval= !frameCount! / %amountOfMenuFrames% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+        SET /A interval= !menuFrameCount! / %amountOfMenuScreens% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
@@ -207,31 +238,8 @@ IF %enableScreenshots%==true (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating episode screenshots...
-
-        REM Finds duration of file in seconds
-        ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
-
-        REM Extracts the 13th last line of the ffmpeg output for the frame count
-        FOR /F "delims=" %%a in (temp.txt) do (
-            SET "lastBut12=!lastBut11!"
-            SET "lastBut11=!lastBut10!"
-            SET "lastBut10=!lastBut9!"
-            SET "lastBut9=!lastBut8!"
-            SET "lastBut8=!lastBut7!"
-            SET "lastBut7=!lastBut6!"
-            SET "lastBut6=!lastBut5!"
-            SET "lastBut5=!lastBut4!"
-            SET "lastBut4=!lastBut3!"
-            SET "lastBut3=!lastBut2!"
-            SET "lastBut2=!lastBut1!"
-            SET "lastBut1=!lastLine!"
-            SET "lastLine=%%a"
-        )
-        FOR /F "tokens=2 delims==" %%b in ("!lastBut12!") do (
-            SET "frameCount=%%b"
-        )
-
-        SET /A interval= !frameCount! / %amountOfEpisodeFrames% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
+        
+        SET /A interval= !episodeFrameCount! / %amountOfEpisodeScreens% & REM Divides the frameCount by N to have an interval the length of 1/N of the video to generate a screenshot at that interval
 
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
