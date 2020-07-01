@@ -18,29 +18,44 @@ REM Drag VIDEO_TS folder from DVD onto batch file and follow the instructions
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-REM %~n1\
 SET inputFolderPath=%~1
 SET inputFolderDrive=%~d1
+SET inputFolderDirectory=%~dp1
+FOR %%B in ("%inputFolderPath%\..") DO SET inputFolderFolder=%%~nxB
 
-REM ##################### CHANGE THIS #############################################################
+REM ##################### CHANGE THESE ############################################################
 SET transferredFolderPath=M:\DVDs\
+SET enableFolderCopy=true
 REM ###############################################################################################
 
-FOR /F "tokens=1-5*" %%1 IN ('VOL %inputFolderDrive%') DO (
-    SET driveLabelTemp=%%6 & goto finishDriveLabelling
-)
-:finishDriveLabelling
-SET driveLabel=!driveLabelTemp:~0,-1!
+IF %enableFolderCopy%==true (
+    FOR /F "tokens=1-5*" %%1 IN ('VOL %inputFolderDrive%') DO (
+        SET driveLabelTemp=%%6 & goto finishDriveLabelling
+    )
+    :finishDriveLabelling
+    SET driveLabel=!driveLabelTemp:~0,-1!
+    
+    IF EXIST "!transferredFolderPath!!driveLabel!" (
+        SET /P driveLabelSuffix="The folder (!driveLabel!) already exists at the destination directory. Enter an unused suffix to continue or leave blank to overwrite: "
+    )
+    SET "driveLabel=%driveLabel%%driveLabelSuffix%"
 
-IF EXIST "!transferredFolderPath!!driveLabel!" (
-    SET /P driveLabelSuffix="The folder (!driveLabel!) already exists at the destination directory. Enter an unused suffix to continue or leave blank to overwrite: "
+    SET screensDirectory=%localdatetime%-%driveLabel%
+    SET infoDirectory=%localdatetime%-%driveLabel%
 )
-SET "driveLabel=%driveLabel%%driveLabelSuffix%"
+
+IF %enableFolderCopy%==false (
+    SET transferredFolderPath=!inputFolderDirectory!
+    SET driveLabel=
+    
+    SET screensDirectory=%localdatetime%-%inputFolderFolder%
+    SET infoDirectory=%localdatetime%-%inputFolderFolder%
+)
 
 REM ##################### CHANGE THESE ############################################################
 SET outputDirectory=C:\Tools\Workshop\
-SET screensDirectory=%localdatetime%-%driveLabel%\screens\
-SET infoDirectory=%localdatetime%-%driveLabel%\info\
+SET screensDirectory=!screensDirectory!\screens\
+SET infoDirectory=!infoDirectory!\info\
 SET enableScreenshots=true
 SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
@@ -58,17 +73,25 @@ CD /D "!outputDirectory!"
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Copy from disc to drive %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
-SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-ECHO !currentTime! - Transferring disc data to output location...
 
-mkdir "%transferredFolderPath%%driveLabel%" 2> NUL
-teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%%driveLabel%"
-nircmd.exe cdrom open %inputFolderDrive%
+IF %enableFolderCopy%==true (
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
+    ECHO !currentTime! - Transferring disc data to output location...
 
-FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
-SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-ECHO !currentTime! - Finished transferring disc data to output location...
+    mkdir "%transferredFolderPath%%driveLabel%" 2> NUL
+    teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%%driveLabel%"
+    nircmd.exe cdrom open %inputFolderDrive%
+    
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
+    ECHO !currentTime! - Finished transferring disc data to output location...
+) ELSE (
+    FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
+    SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
+    ECHO !currentTime! - Folder was not copied - Folder copying is not enabled
+)
+
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get IFO Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
