@@ -100,7 +100,7 @@ IF %enableVOBMediaInfo%==true (
 
 IF !checkForVOBFiles!==true (
     SET EpisodeFound=0
-    FOR /L %%a IN (1, 1, 4) DO (
+    FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
             REM Finds duration of file in frames
             ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
@@ -145,7 +145,7 @@ IF !checkForVOBFiles!==true (
     )
 
     SET MenuFound=0
-    FOR /L %%a IN (1, 1, 4) DO (
+    FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
             REM Finds duration of file in frames
             ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
