@@ -22,8 +22,10 @@ The script will try and read ```VIDEO_TS\VTS_0X_1.VOB``` AND ```VIDEO_TS\VTS_0X_
 - ```transferredFolderPath``` The folder where the VIDEO_TS folder will be copied to
 - ```enableFolderCopy``` Enables/Disables copying of the VIDEO_TS folder (useful for taking screenshots without first copying)
 - ```outputDirectory``` The folder where the screenshots and mediainfo are saved
-- ```screensDirectory``` The name of the screens folder inside the outputDirectory
-- ```infoDirectory``` The name of the MediaInfo folder inside the outputDirectory
+- ```screensAndInfoBaseDirectoryWhenCopying``` The base folder inside the outputDirectory where the screens and MediaInfo folders are kept when copying
+- ```screensAndInfoBaseDirectoryWhenNotCopying``` The base folder inside the outputDirectory where the screens and MediaInfo folders are kept when not copying
+- ```screensFolder``` The name of the screens folder inside the outputDirectory
+- ```infoFolder``` The name of the MediaInfo folder inside the outputDirectory
 - ```enableScreenshots``` Enables/Disables screenshots generation
 - ```enableIFOMediaInfo``` Enables/Disables MediaInfo generation of the largest IFO file
 - ```enableVOBMediaInfo``` Enables/Disables MediaInfo generation for the VOB which the screenshots are generated from
