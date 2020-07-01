@@ -39,23 +39,19 @@ IF %enableFolderCopy%==true (
         SET /P driveLabelSuffix="The folder (!driveLabel!) already exists at the destination directory. Enter an unused suffix to continue or leave blank to overwrite: "
     )
     SET "driveLabel=%driveLabel%%driveLabelSuffix%"
-
-    SET screensDirectory=%localdatetime%-%driveLabel%
-    SET infoDirectory=%localdatetime%-%driveLabel%
 )
 
 IF %enableFolderCopy%==false (
     SET transferredFolderPath=!inputFolderDirectory!
     SET driveLabel=
-    
-    SET screensDirectory=%localdatetime%-%inputFolderFolder%
-    SET infoDirectory=%localdatetime%-%inputFolderFolder%
 )
 
 REM ##################### CHANGE THESE ############################################################
 SET outputDirectory=C:\Tools\Workshop\
-SET screensDirectory=!screensDirectory!\screens\
-SET infoDirectory=!infoDirectory!\info\
+SET screensAndInfoBaseDirectoryWhenCopying=%localdatetime%-%driveLabel%
+SET screensAndInfoBaseDirectoryWhenNotCopying=%localdatetime%-%inputFolderFolder%
+SET screensFolder=screens
+SET infoFolder=info
 SET enableScreenshots=true
 SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
@@ -64,6 +60,16 @@ SET amountOfEpisodeScreens=11
 SET minAmountOfMenuFrames=100
 SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
+
+IF %enableFolderCopy%==true (
+    SET screensDirectory=%screensAndInfoBaseDirectoryWhenCopying%\%screensFolder%\
+    SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%\%infoFolder%\
+)
+
+IF %enableFolderCopy==false (
+    SET screensDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%\%screensFolder%\
+    SET infoDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%\%infoFolder%\
+)
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
 IF %enableScreenshots%==true (
