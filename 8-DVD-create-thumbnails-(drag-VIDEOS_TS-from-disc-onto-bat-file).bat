@@ -140,7 +140,7 @@ IF !checkForVOBFiles!==true (
     IF !EpisodeFound!==0 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-        ECHO !currentTime! - Episode was not found
+        ECHO !currentTime! - Episode was not found - Episode screenshots and VOB mediainfo have not been saved
         PAUSE
     )
 
@@ -185,7 +185,7 @@ IF !checkForVOBFiles!==true (
     IF !MenuFound!==0 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-        ECHO !currentTime! - Menu was not found
+        ECHO !currentTime! - Menu was not found - Menu screenshots and VOB mediainfo have not been saved
         PAUSE
     )
 )
