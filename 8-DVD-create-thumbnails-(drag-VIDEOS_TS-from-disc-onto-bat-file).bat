@@ -48,10 +48,10 @@ IF %enableFolderCopy%==false (
 
 REM ##################### CHANGE THESE ############################################################
 SET outputDirectory=C:\Tools\Workshop\
-SET screensAndInfoBaseDirectoryWhenCopying=%localdatetime%-%driveLabel%
-SET screensAndInfoBaseDirectoryWhenNotCopying=%localdatetime%-%inputFolderFolder%
-SET screensFolder=screens
-SET infoFolder=info
+SET screensAndInfoBaseDirectoryWhenCopying=%localdatetime%-%driveLabel%\
+SET screensAndInfoBaseDirectoryWhenNotCopying=%localdatetime%-%inputFolderFolder%\
+SET screensFolder=screens\
+SET infoFolder=info\
 SET enableScreenshots=true
 SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
@@ -62,13 +62,13 @@ SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
 
 IF %enableFolderCopy%==true (
-    SET screensDirectory=%screensAndInfoBaseDirectoryWhenCopying%\%screensFolder%\
-    SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%\%infoFolder%\
+    SET screensDirectory=%screensAndInfoBaseDirectoryWhenCopying%%screensFolder%
+    SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%%infoFolder%
 )
 
 IF %enableFolderCopy==false (
-    SET screensDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%\%screensFolder%\
-    SET infoDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%\%infoFolder%\
+    SET screensDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%screensFolder%
+    SET infoDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%infoFolder%
 )
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
