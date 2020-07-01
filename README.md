@@ -8,7 +8,7 @@ Drag VIDEO_TS folder from DVD onto script to automatically copy to your hard dri
   - TeraCopy (Copies files from disc with integrity verification)
   - NirCmd (Ejects disc when files have finished copying)
 - Make sure Teracopy has "Always test after copy" enabled to allow integrity checking
-- Set the output directory, screens directory and info directory
+- Set the desired settings (including the output directories)
 - Drag VIDEO_TS folder from DVD onto batch file and follow the instructions
 
 ## Naming
