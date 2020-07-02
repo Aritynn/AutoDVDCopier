@@ -66,7 +66,7 @@ IF %enableFolderCopy%==true (
     SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%%infoFolder%
 )
 
-IF %enableFolderCopy==false (
+IF %enableFolderCopy%==false (
     SET screensDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%screensFolder%
     SET infoDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%infoFolder%
 )
