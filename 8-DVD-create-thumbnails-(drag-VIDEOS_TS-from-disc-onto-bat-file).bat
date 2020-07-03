@@ -132,10 +132,10 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %outputDirectory%%infoDirectory%temp.txt 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
-            FOR /F "delims=" %%b in (temp.txt) do (
+            FOR /F "delims=" %%b in (%outputDirectory%%infoDirectory%temp.txt) do (
                 SET "lastBut12=!lastBut11!"
                 SET "lastBut11=!lastBut10!"
                 SET "lastBut10=!lastBut9!"
@@ -177,10 +177,10 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > temp.txt 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %outputDirectory%%infoDirectory%temp.txt 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
-            FOR /F "delims=" %%b in (temp.txt) do (
+            FOR /F "delims=" %%b in (%outputDirectory%%infoDirectory%temp.txt) do (
                 SET "lastBut12=!lastBut11!"
                 SET "lastBut11=!lastBut10!"
                 SET "lastBut10=!lastBut9!"
