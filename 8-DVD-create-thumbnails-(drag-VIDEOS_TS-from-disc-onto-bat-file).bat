@@ -72,7 +72,6 @@ CD /D "!outputDirectory!"
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Copy from disc to drive %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 IF %enableFolderCopy%==true (
     FOR /F "tokens=*" %%a IN ('DIR /S %inputFolderPath%') DO (
         SET "totalSize=!lastLine!"
@@ -82,7 +81,7 @@ IF %enableFolderCopy%==true (
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
     ECHO !currentTime! - Transferring to output location: !totalSize!
-
+    
     ROBOCOPY "%inputFolderPath%" "%transferredFolderPath%VIDEO_TS" /E /COPY:DAT /DCOPY:T /MT:1 /R:5 /W:5 /TEE /V /TS /FP /LOG:"%outputDirectory%%infoDirectory%robocopy.log"
     REM "teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%"
     nircmd.exe cdrom open %inputFolderDrive%
@@ -95,7 +94,6 @@ IF %enableFolderCopy%==true (
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
     ECHO !currentTime! - Folder was not copied - Folder copying is not enabled
 )
-
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get IFO Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
