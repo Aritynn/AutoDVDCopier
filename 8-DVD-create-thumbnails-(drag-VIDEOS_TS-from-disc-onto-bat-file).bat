@@ -303,15 +303,19 @@ IF %enableScreenshots%==true (
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF %enableVOBMediaInfo%==true (
-    ECHO [SPOILER=VOB MediaInfo]>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [CENTER]Information:[/CENTER] >"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO Source: Format ^( Distributor ^| Region  ^|  minutes ^| N-disc set ^| Year ^) >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO Ripper: AnyDVD HD 7.6.9.1 >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO. >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [SPOILER=VOB MediaInfo] >>"%outputDirectory%%infoDirectory%VOB-description.txt"
     mediainfo.exe "%transferredFolderPath%VIDEO_TS\VTS_0!EpisodeFound!_1.VOB" >%tempFile%
     TYPE %tempFile% | FINDSTR /V /B /L /C:"Complete name" >>"%outputDirectory%%infoDirectory%VOB-description.txt"
-    ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [/SPOILER] >>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO. >>"%outputDirectory%%infoDirectory%VOB-description.txt"
-    ECHO [CENTER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
-    ECHO Screenshots:>>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [CENTER] >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO Screenshots: >>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO. >>"%outputDirectory%%infoDirectory%VOB-description.txt"
-    ECHO [/CENTER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    ECHO [/CENTER] >>"%outputDirectory%%infoDirectory%VOB-description.txt"
 
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
