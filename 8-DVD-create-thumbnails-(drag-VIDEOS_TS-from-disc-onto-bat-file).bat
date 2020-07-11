@@ -36,25 +36,26 @@ IF %enableFolderCopy%==true (
     SET driveLabel=!driveLabelTemp:~0,-1!
     
     IF EXIST "!transferredFolderPath!!driveLabel!" (
-        SET /P driveLabelSuffix="The folder (!driveLabel!) already exists at the destination directory. Enter an unused suffix to continue or leave blank to overwrite: "
+        SET /P driveLabelSuffix="The folder '!driveLabel!' already exists at the destination directory. Enter an unused suffix to continue or leave blank to overwrite: "
     )
     SET "driveLabel=%driveLabel%%driveLabelSuffix%"
+    SET "transferredFolderPath=%transferredFolderPath%%driveLabel%\"
 )
 
 IF %enableFolderCopy%==false (
-    SET transferredFolderPath=!inputFolderDirectory!
-    SET driveLabel=
+    SET "transferredFolderPath=!inputFolderDirectory!\"
+    SET "driveLabel=%inputFolderFolder%"
 )
 
 REM ##################### CHANGE THESE ############################################################
 SET outputDirectory=C:\Tools\Workshop\
-SET screensAndInfoBaseDirectoryWhenCopying=%localdatetime%-%driveLabel%\
-SET screensAndInfoBaseDirectoryWhenNotCopying=%localdatetime%-%inputFolderFolder%\
-SET screensFolder=screens\
-SET infoFolder=info\
+SET screensDirectory=%localdatetime%-%driveLabel%\screens\
+SET infoDirectory=%localdatetime%-%driveLabel%\info\
+
 SET enableScreenshots=true
 SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
+
 SET amountOfMenuScreens=3
 SET amountOfEpisodeScreens=11
 SET minAmountOfMenuFrames=100
@@ -62,16 +63,6 @@ SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
 
 SET tempFile=%outputDirectory%%infoDirectory%temp.txt
-
-IF %enableFolderCopy%==true (
-    SET screensDirectory=%screensAndInfoBaseDirectoryWhenCopying%%screensFolder%
-    SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%%infoFolder%
-)
-
-IF %enableFolderCopy%==false (
-    SET screensDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%screensFolder%
-    SET infoDirectory=%screensAndInfoBaseDirectoryWhenNotCopying%%infoFolder%
-)
 
 MKDIR "!outputDirectory!%infoDirectory%" 2> NUL
 IF %enableScreenshots%==true (
@@ -104,11 +95,12 @@ IF %enableFolderCopy%==true (
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get IFO Info %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 IF %enableIFOMediaInfo%==true (
-    FOR /F "tokens=*" %%a IN ('DIR /B /S /O:S "%transferredFolderPath%%driveLabel%\VIDEO_TS\"') DO (
+    FOR /F "tokens=*" %%a IN ('DIR /B /S /O:S "%transferredFolderPath%VIDEO_TS\"') DO (
         IF "%%~xa" == ".IFO" (
             SET "ifoFile=%%a"
         )
     )
+
     mediainfo.exe "!ifoFile!">"%outputDirectory%%infoDirectory%IFO-mediainfo.txt"
 
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
@@ -132,10 +124,10 @@ IF %enableVOBMediaInfo%==true (
 IF !checkForVOBFiles!==true (
     SET EpisodeFound=0
     FOR /L %%a IN (1, 1, 9) DO (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
-            REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
+        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_0%%a_1.VOB" (
 
+            REM Finds duration of file in frames
+            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
             REM Extracts the 13th last line of the ffmpeg output for the frame count
             FOR /F "delims=" %%b in (%tempFile%) do (
                 SET "lastBut12=!lastBut11!"
@@ -177,9 +169,9 @@ IF !checkForVOBFiles!==true (
 
     SET MenuFound=0
     FOR /L %%a IN (1, 1, 9) DO (
-        IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
+        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_0%%a_0.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
             FOR /F "delims=" %%b in (%tempFile%) do (
@@ -244,7 +236,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0!MenuFound!_0.VOB"^
+         -i "%transferredFolderPath%VIDEO_TS\VTS_0!MenuFound!_0.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
@@ -275,7 +267,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0!EpisodeFound!_1.VOB"^
+         -i "%transferredFolderPath%VIDEO_TS\VTS_0!EpisodeFound!_1.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
