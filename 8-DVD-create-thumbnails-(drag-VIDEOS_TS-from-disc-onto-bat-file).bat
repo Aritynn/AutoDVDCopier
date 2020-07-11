@@ -234,7 +234,7 @@ IF %enableScreenshots%==true (
 
     REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots Of Menu %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    IF %MenuFound% GEQ 0 (
+    IF !MenuFound! GEQ 1 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating menu screenshots...
@@ -244,7 +244,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%MenuFound%_0.VOB"^
+         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0!MenuFound!_0.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
@@ -265,7 +265,7 @@ IF %enableScreenshots%==true (
 
     REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    IF %EpisodeFound% GEQ 0 (
+    IF !EpisodeFound! GEQ 1 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating episode screenshots...
@@ -275,7 +275,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB"^
+         -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0!EpisodeFound!_1.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
@@ -306,7 +306,7 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%
 
 IF %enableVOBMediaInfo%==true (
     ECHO [SPOILER=VOB MediaInfo]>"%outputDirectory%%infoDirectory%VOB-description.txt"
-    mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%EpisodeFound%_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
+    mediainfo.exe "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0!EpisodeFound!_1.VOB">>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO [/SPOILER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO. >>"%outputDirectory%%infoDirectory%VOB-description.txt"
     ECHO [CENTER]>>"%outputDirectory%%infoDirectory%VOB-description.txt"
