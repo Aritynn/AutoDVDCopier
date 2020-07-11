@@ -83,8 +83,8 @@ IF %enableFolderCopy%==true (
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
     ECHO !currentTime! - Transferring to output location: !totalSize!
 
-    mkdir "%transferredFolderPath%%driveLabel%" 2> NUL
-    teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%%driveLabel%"
+    ROBOCOPY "%inputFolderPath%" "%transferredFolderPath%VIDEO_TS" /E /COPY:DAT /DCOPY:T /MT:1 /R:5 /W:5 /TEE /V /TS /FP /LOG:"%outputDirectory%%infoDirectory%robocopy.log"
+    REM "teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%"
     nircmd.exe cdrom open %inputFolderDrive%
     
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
