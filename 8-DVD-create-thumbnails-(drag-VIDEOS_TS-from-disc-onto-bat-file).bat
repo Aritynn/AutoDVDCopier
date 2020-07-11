@@ -61,6 +61,8 @@ SET minAmountOfMenuFrames=100
 SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
 
+SET tempFile=%outputDirectory%%infoDirectory%temp.txt
+
 IF %enableFolderCopy%==true (
     SET screensDirectory=%screensAndInfoBaseDirectoryWhenCopying%%screensFolder%
     SET infoDirectory=%screensAndInfoBaseDirectoryWhenCopying%%infoFolder%
@@ -132,10 +134,10 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %outputDirectory%%infoDirectory%temp.txt 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
-            FOR /F "delims=" %%b in (%outputDirectory%%infoDirectory%temp.txt) do (
+            FOR /F "delims=" %%b in (%tempFile%) do (
                 SET "lastBut12=!lastBut11!"
                 SET "lastBut11=!lastBut10!"
                 SET "lastBut10=!lastBut9!"
@@ -177,10 +179,10 @@ IF !checkForVOBFiles!==true (
     FOR /L %%a IN (1, 1, 9) DO (
         IF EXIST "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %outputDirectory%%infoDirectory%temp.txt 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%%driveLabel%\VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
-            FOR /F "delims=" %%b in (%outputDirectory%%infoDirectory%temp.txt) do (
+            FOR /F "delims=" %%b in (%tempFile%) do (
                 SET "lastBut12=!lastBut11!"
                 SET "lastBut11=!lastBut10!"
                 SET "lastBut10=!lastBut9!"
@@ -232,7 +234,7 @@ IF %enableScreenshots%==true (
 
     REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots Of Menu %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    IF !MenuFound! GEQ 1 (
+    IF %MenuFound% GEQ 0 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating menu screenshots...
@@ -263,7 +265,7 @@ IF %enableScreenshots%==true (
 
     REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Generates Screenshots of First Episode %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    IF !EpisodeFound! GEQ 1 (
+    IF %EpisodeFound% GEQ 0 (
         FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
         SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
         ECHO !currentTime! - Generating episode screenshots...
@@ -322,6 +324,8 @@ IF %enableVOBMediaInfo%==true (
 )
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Done %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DEL %tempFile% >NUL 2>&1 & REM Deletes the temp file
 
 FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
 SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
