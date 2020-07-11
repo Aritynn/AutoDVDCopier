@@ -74,9 +74,14 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Copy from disc to d
 
 
 IF %enableFolderCopy%==true (
+    FOR /F "tokens=*" %%a IN ('DIR /S %inputFolderPath%') DO (
+        SET "totalSize=!lastLine!"
+        SET "lastLine=%%a"
+    )
+    
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
-    ECHO !currentTime! - Transferring disc data to output location...
+    ECHO !currentTime! - Transferring to output location: !totalSize!
 
     mkdir "%transferredFolderPath%%driveLabel%" 2> NUL
     teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%%driveLabel%"
