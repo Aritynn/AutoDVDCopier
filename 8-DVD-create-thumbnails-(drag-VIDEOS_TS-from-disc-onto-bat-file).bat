@@ -10,10 +10,9 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Instructions %%%%%%
 REM Install and add folder path of the executables to the Windows Path
 REM  - FFMpeg (counts total frames and extracts screens)
 REM  - MediaInfo (Outputs mediainfo of .VOB and .IFO files)
-REM  - TeraCopy (Copies files from disc with integrity verification)
 REM  - NirCmd (Ejects disc when files have finished copying)
-REM Make sure Teracopy has "Always test after copy" enabled
 REM Set the output directory, screens directory, [media]info directory
+REM Enable/Disable Screenshots, IFO/VOB Mediainfo, copying
 REM Drag VIDEO_TS folder from DVD onto batch file and follow the instructions
 
 REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Initialization %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
