@@ -56,7 +56,7 @@ SET enableIFOMediaInfo=true
 SET enableVOBMediaInfo=true
 
 SET amountOfMenuScreens=3
-SET amountOfEpisodeScreens=11
+SET amountOfEpisodeScreens=13
 SET minAmountOfMenuFrames=100
 SET minAmountOfEpisodeFrames=10000
 REM ###############################################################################################
