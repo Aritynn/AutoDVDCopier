@@ -126,11 +126,17 @@ IF %enableVOBMediaInfo%==true (
 
 IF !checkForVOBFiles!==true (
     SET EpisodeFound=0
-    FOR /L %%a IN (1, 1, 9) DO (
-        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_0%%a_1.VOB" (
+    FOR /L %%a IN (1, 1, 99) DO (
+
+		SET "tempVtsNumber=0%%a"
+		SET vtsNumber=!tempVtsNumber:~-2!
+
+        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_!vtsNumber!_1.VOB" (
+
+			echo VTS_!vtsNumber!_1.VOB
 
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_0%%a_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_!vtsNumber!_1.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
             REM Extracts the 13th last line of the ffmpeg output for the frame count
             FOR /F "delims=" %%b in (%tempFile%) do (
                 SET "lastBut12=!lastBut11!"
@@ -152,7 +158,7 @@ IF !checkForVOBFiles!==true (
             )
 
             IF !episodeFrameCount! GEQ %minAmountOfEpisodeFrames% (
-                SET EpisodeFound=%%a
+                SET EpisodeFound=!vtsNumber!
 
                 FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
                 SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
@@ -170,10 +176,14 @@ IF !checkForVOBFiles!==true (
     )
 
     SET MenuFound=0
-    FOR /L %%a IN (1, 1, 9) DO (
-        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_0%%a_0.VOB" (
+    FOR /L %%a IN (1, 1, 99) DO (
+
+		SET "tempVtsNumber=0%%a"
+		SET vtsNumber=!tempVtsNumber:~-2!
+
+        IF EXIST "%transferredFolderPath%VIDEO_TS\VTS_!vtsNumber!_0.VOB" (
             REM Finds duration of file in frames
-            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_0%%a_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
+            ffmpeg.exe -i "%transferredFolderPath%VIDEO_TS\VTS_!vtsNumber!_0.VOB" -map 0:v:0 -c copy -progress - -nostats -f null - > %tempFile% 2>&1
 
             REM Extracts the 13th last line of the ffmpeg output for the frame count
             FOR /F "delims=" %%b in (%tempFile%) do (
@@ -196,7 +206,7 @@ IF !checkForVOBFiles!==true (
             )
 
             IF !menuFrameCount! GEQ %minAmountOfMenuFrames% (
-                SET MenuFound=%%a
+                SET MenuFound=!vtsNumber!
 
                 FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
                 SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
@@ -237,7 +247,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%VIDEO_TS\VTS_0!MenuFound!_0.VOB"^
+         -i "%transferredFolderPath%VIDEO_TS\VTS_!MenuFound!_0.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
@@ -268,7 +278,7 @@ IF %enableScreenshots%==true (
         REM Extracts screen at each interval and names the file as the frame number
         ffmpeg.exe -analyzeduration 2147483647^
          -probesize 2147483647^
-         -i "%transferredFolderPath%VIDEO_TS\VTS_0!EpisodeFound!_1.VOB"^
+         -i "%transferredFolderPath%VIDEO_TS\VTS_!EpisodeFound!_1.VOB"^
          -loglevel error^
          -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
          -vsync 0^
