@@ -42,7 +42,7 @@ IF %enableFolderCopy%==true (
 )
 
 IF %enableFolderCopy%==false (
-    SET "transferredFolderPath=!inputFolderDirectory!\"
+    SET "transferredFolderPath=!inputFolderDirectory!"
     SET "driveLabel=%inputFolderFolder%"
 )
 
