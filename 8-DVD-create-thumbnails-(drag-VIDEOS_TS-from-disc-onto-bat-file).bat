@@ -153,6 +153,7 @@ IF !checkForVOBFiles!==true (
                 SET "lastBut1=!lastLine!"
                 SET "lastLine=%%b"
             )
+			echo !lastBut12!
             FOR /F "tokens=2 delims==" %%c in ("!lastBut12!") do (
                 SET "episodeFrameCount=%%c"
             )
