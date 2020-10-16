@@ -249,7 +249,7 @@ IF %enableScreenshots%==true (
          -probesize 2147483647^
          -i "%transferredFolderPath%VIDEO_TS\VTS_!MenuFound!_0.VOB"^
          -loglevel error^
-         -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
+         -vf [in]setpts=PTS,select="not(mod(n\,!interval!))",scale=iw*sar:ih[out]^
          -vsync 0^
          -stats^
          -f image2^
@@ -280,7 +280,7 @@ IF %enableScreenshots%==true (
          -probesize 2147483647^
          -i "%transferredFolderPath%VIDEO_TS\VTS_!EpisodeFound!_1.VOB"^
          -loglevel error^
-         -vf [in]setpts=PTS,select="not(mod(n\,!interval!))"[out]^
+         -vf [in]setpts=PTS,select="not(mod(n\,!interval!))",scale=iw*sar:ih[out]^
          -vsync 0^
          -stats^
          -f image2^
