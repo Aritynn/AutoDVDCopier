@@ -310,7 +310,8 @@ REM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Get VOB Info %%%%%%
 IF %enableVOBMediaInfo%==true (
     IF !EpisodeFound! GEQ 1 (
         ECHO [CENTER]Information:[/CENTER] >"%outputDirectory%%infoDirectory%VOB-description.txt"
-        ECHO Source: Format ^( Distributor ^| Region  ^|  minutes ^| N-disc set ^| Year ^) >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+        ECHO Name: >>"%outputDirectory%%infoDirectory%VOB-description.txt"
+        ECHO Source: FORMAT ^( DISTRIBUTOR ^| Region NNNN ^| NNNN minutes ^| NNNN-disc set ^| DATE ^) >>"%outputDirectory%%infoDirectory%VOB-description.txt"
         ECHO Ripper: AnyDVD HD 7.6.9.1 >>"%outputDirectory%%infoDirectory%VOB-description.txt"
         ECHO. >>"%outputDirectory%%infoDirectory%VOB-description.txt"
         ECHO [SPOILER=VOB MediaInfo] >>"%outputDirectory%%infoDirectory%VOB-description.txt"
