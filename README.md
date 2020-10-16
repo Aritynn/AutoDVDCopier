@@ -13,7 +13,7 @@ Drag VIDEO_TS folder from DVD onto script to automatically copy to your hard dri
 The script extracts the name of the disc and will create a folder on the hard drive with this name to place the VIDEO_TS folder into. If it already exists, it will ask you for a suffix to add. Depending on what suffix you add, if files still exist, it will not overwrite existing files (uses the included Robocopy command).
 
 ## Screenshots
-The script will try and read ```VIDEO_TS\VTS_0X_1.VOB``` AND ```VIDEO_TS\VTS_0X_0.VOB``` (with X going from 1 through 9) which are usually the first episode and menu respectively while making sure that the frame count is higher than the minimum allowed. It will then generate 3 lossless screenshots from the menu and 11 from the episode.
+The script will try and read ```VIDEO_TS\VTS_XX_1.VOB``` AND ```VIDEO_TS\VTS_XX_0.VOB``` (with XX going from 01 through 99) which are usually the first episode and menu respectively while making sure that the frame count is higher than the minimum allowed. It will then generate 3 lossless screenshots from the menu and 11 from the episode.
 
 ## Settings
 
