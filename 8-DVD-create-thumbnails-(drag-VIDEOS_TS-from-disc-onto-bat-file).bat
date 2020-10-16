@@ -81,7 +81,7 @@ IF %enableFolderCopy%==true (
     SET currentTime=!ldt:~0,4!-!ldt:~4,2!-!ldt:~6,2!-!ldt:~8,2!h!ldt:~10,2!m!ldt:~12,2!s
     ECHO !currentTime! - Transferring to output location: !totalSize!
     
-    ROBOCOPY "%inputFolderPath%" "%transferredFolderPath%VIDEO_TS" /E /COPY:DAT /DCOPY:T /MT:1 /R:5 /W:5 /TEE /V /TS /FP /LOG:"%outputDirectory%%infoDirectory%robocopy.log"
+    ROBOCOPY "%inputFolderPath%" "%transferredFolderPath%VIDEO_TS" /E /COPY:DAT /DCOPY:T /MT:1 /R:1 /W:5 /TEE /V /TS /FP /LOG:"%outputDirectory%%infoDirectory%robocopy.log"
     REM "teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%"
     nircmd.exe cdrom open %inputFolderDrive%
     
