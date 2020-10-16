@@ -83,6 +83,7 @@ IF %enableFolderCopy%==true (
     
     ROBOCOPY "%inputFolderPath%" "%transferredFolderPath%VIDEO_TS" /E /COPY:DAT /DCOPY:T /MT:1 /R:1 /W:5 /TEE /V /TS /FP /LOG:"%outputDirectory%%infoDirectory%robocopy.log"
     REM "teracopy.exe copy "%inputFolderPath%" "%transferredFolderPath%"
+    echo 
     nircmd.exe cdrom open %inputFolderDrive%
     
     FOR /F "usebackq tokens=1,2 delims==" %%i in (`WMIC OS GET LocalDateTime /VALUE 2^>NUL`) DO IF '.%%i.'=='.LocalDateTime.' SET ldt=%%j
